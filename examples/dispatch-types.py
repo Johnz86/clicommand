@@ -1,11 +1,11 @@
-"""Usage: dispatch-types.py FOLDER [options]
+"""Usage: dispatch-types.py FOLDER [options] [AGREE]
 
 Arguments:
   FOLDER     folder name
-
+  AGREE      yes|no|ignore
 Options:
   --count=N   number of files
-  --file 	  file is present
+  --file      file is present
 """
 import os
 from clicommand import Cli
@@ -21,7 +21,7 @@ def getCount(arguments):
   print 'getCount',arguments
 
 #object means attribute is optional.
-@cli.command({'FOLDER':os.path.isdir,'--count':object})
+@cli.command({'FOLDER':os.path.isdir,'--count':'?'})
 def getFolder(arguments):
   print 'getFolder',arguments
 
@@ -29,3 +29,8 @@ def getFolder(arguments):
 @cli.command({'FOLDER':os.path.isdir,'--file':True})
 def getFile(arguments):
   print 'getFile',arguments
+
+#checks if AGREE has value of yes|no|ignore
+@cli.command({'FOLDER':str,'AGREE':['yes','no','ignore']})
+def folderAgreed(arguments):
+  print 'folderAgreed',arguments

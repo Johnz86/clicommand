@@ -10,7 +10,7 @@ import os
 from inspect import isfunction,ismethod
 from types import TypeType
 
-__version__ = '0.1'
+__version__ = '0.2'
 
 class Cli:
     '''Command dispatcher for docopt command line interface'''
@@ -59,21 +59,26 @@ class CommandDispatcher:
     def compareAguments(self,compareArg,commandArg):
         if(compareArg == commandArg):
             return True
-        elif(commandArg == object):
+        elif(commandArg == '?'):
             return True
         elif(type(commandArg) is bool or commandArg is None or compareArg is None):
             return False
-        elif(isfunction(commandArg) or ismethod(commandArg)):
-            if(commandArg(compareArg)):
-                return True
-            else: 
-                return False
         elif(type(commandArg) is type):
-            if(type(compareArg) is commandArg):
+            if commandArg is str:
                 return True
             elif(commandArg is int and str.isdigit(compareArg)):
                 return True
             else:
+                return False
+        if type(commandArg) in (list, tuple, set, frozenset):
+            for choice in commandArg:
+                if self.compareAguments(compareArg,choice):
+                    return True
+            return False
+        elif callable(commandArg):
+            if(commandArg(compareArg)):
+                return True
+            else: 
                 return False
         else:
             return False
