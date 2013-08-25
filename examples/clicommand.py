@@ -10,7 +10,7 @@ import os
 from inspect import isfunction,ismethod
 from types import TypeType
 
-__version__ = '0.2'
+__version__ = '0.3'
 
 class Cli:
     '''Command dispatcher for docopt command line interface'''
@@ -20,6 +20,12 @@ class Cli:
 
     def command( self, *args, **kwargs ):
         return CommandDispatcher( self, *args, **kwargs )
+        
+    def onStart( self ):
+        pass
+        
+    def onExit( self ):
+        pass
 
 class CommandDispatcher:
     '''Dispatcher of functions '''
@@ -42,7 +48,10 @@ class CommandDispatcher:
         return self.wrap
 
     def wrap( self, *args, **kwargs ):
-        return self._f( *args, **kwargs )
+        self._cli_decorator.onStart()
+        function = self._f( *args, **kwargs )   
+        self._cli_decorator.onExit()
+        return function
 
     def matchCommand(self,argumentlist,commandlist):
         for key,value in commandlist.items():
