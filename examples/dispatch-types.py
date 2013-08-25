@@ -11,9 +11,17 @@ import os
 from clicommand import Cli
 from docopt import docopt
 
+def OnStart(message):
+        print 'On start',message
+        
+def OnExit(message):
+        print 'On exit',message
+
 if __name__ == '__main__':
 
     cli = Cli(docopt(__doc__))
+    cli.onStart=lambda:OnStart('Hello')
+    cli.onExit=lambda:OnExit('Bye')
 
 #int means, that provided string is a number
 @cli.command({'FOLDER':os.path.isdir,'--count':int})
@@ -31,6 +39,6 @@ def getFile(arguments):
   print 'getFile',arguments
 
 #checks if AGREE has value of yes|no|ignore
-@cli.command({'FOLDER':str,'AGREE':['yes','no','ignore']})
+@cli.command({'FOLDER':os.path.isdir,'AGREE':['yes','no','ignore']})
 def folderAgreed(arguments):
   print 'folderAgreed',arguments
