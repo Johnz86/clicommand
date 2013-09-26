@@ -11,34 +11,34 @@ import os
 from clicommand import Cli
 from docopt import docopt
 
-def OnStart(message):
+def command_start(message):
         print 'On start',message
         
-def OnExit(message):
+def command_exit(message):
         print 'On exit',message
 
 if __name__ == '__main__':
 
     cli = Cli(docopt(__doc__))
-    cli.onStart=lambda:OnStart('Hello')
-    cli.onExit=lambda:OnExit('Bye')
+    cli.on_start=lambda:command_start('Hello')
+    cli.on_exit=lambda:command_exit('Bye')
 
 #int means, that provided string is a number
 @cli.command({'FOLDER':os.path.isdir,'--count':int})
-def getCount(arguments):
-  print 'getCount',arguments
+def get_count(arguments):
+  print 'get_count executed',arguments
 
 #object means attribute is optional.
 @cli.command({'FOLDER':os.path.isdir,'--count':'?'})
-def getFolder(arguments):
-  print 'getFolder',arguments
+def get_folder(arguments):
+  print 'get_folder executed',arguments
 
 #check if --file has value True
 @cli.command({'FOLDER':os.path.isdir,'--file':True})
-def getFile(arguments):
-  print 'getFile',arguments
+def get_file(arguments):
+  print 'get_file executed',arguments
 
 #checks if AGREE has value of yes|no|ignore
 @cli.command({'FOLDER':os.path.isdir,'AGREE':['yes','no','ignore']})
-def folderAgreed(arguments):
-  print 'folderAgreed',arguments
+def folder_agreed(arguments):
+  print 'folder_agreed executed',arguments

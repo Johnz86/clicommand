@@ -6,86 +6,82 @@
 
 """
 
-import os
-from inspect import isfunction,ismethod
-from types import TypeType
-
-__version__ = '0.3'
+__version__ = '0.4'
 
 class Cli:
-    '''Command dispatcher for docopt command line interface'''
+    """Command dispatcher for docopt command line interface"""
     def __init__( self, data ):
-        self._docoptdata = data
-        self._optimaldata = {key:value for key,value in self._docoptdata.items() if value!=False and value!=None }
+        self.docoptdata = data
+        self.optimaldata = {key:value for key,value in self.docoptdata.items() if value!=False and value is not None}
 
     def command( self, *args, **kwargs ):
         return CommandDispatcher( self, *args, **kwargs )
         
-    def onStart( self ):
+    def on_start( self ):
         pass
         
-    def onExit( self ):
+    def on_exit( self ):
         pass
 
 class CommandDispatcher:
-    '''Dispatcher of functions '''
+    """Dispatcher of functions """
     def __init__( self, cli_decorator, *positional, **keywords ):
         self._cli_decorator = cli_decorator
         if keywords:
-            decoratorArgs = keywords
+            decorator_args = keywords
         elif type(positional[0]) is dict:
-            decoratorArgs = positional[0]
+            decorator_args = positional[0]
         else: 
-            decoratorArgs = None
+            decorator_args = None
             print 'cli has incorrect arguments',positional[0]
             exit(1)
-        self.decArgs = decoratorArgs
+        self.dec_args = decorator_args
 
     def __call__( self, f ):
         self._f = f
-        if(self.matchCommand(self._cli_decorator._docoptdata,self.decArgs)):
-            self.wrap(self._cli_decorator._docoptdata)
+        if self.match_command(self._cli_decorator.docoptdata,self.dec_args):
+            self.wrap(self._cli_decorator.docoptdata)
         return self.wrap
 
     def wrap( self, *args, **kwargs ):
-        self._cli_decorator.onStart()
+        self._cli_decorator.on_start()
         function = self._f( *args, **kwargs )   
-        self._cli_decorator.onExit()
+        self._cli_decorator.on_exit()
         return function
 
-    def matchCommand(self,argumentlist,commandlist):
+    def match_command(self,argumentlist,commandlist):
         for key,value in commandlist.items():
-            if(argumentlist.has_key(key)):
-                if(not self.compareAguments(argumentlist[key],value)):
+            if argumentlist.has_key(key):
+                if not self.compare_commands(argumentlist[key],value):
                     return False
             else:
                 return False
-        if any([key for key in self._cli_decorator._optimaldata.keys() if key not in commandlist.keys()]):
+        if any([key for key in self._cli_decorator.optimaldata.keys() if key not in commandlist.keys()]):
             return False
         else:
             return True
 
-    def compareAguments(self,compareArg,commandArg):
-        if(compareArg == commandArg):
+    def compare_commands(self,compare_arg,command_arg):
+        if compare_arg == command_arg:
             return True
-        elif(commandArg == '?'):
+        elif command_arg == '?':
             return True
-        elif(type(commandArg) is bool or commandArg is None or compareArg is None):
+        elif type(command_arg) is bool or command_arg is None or compare_arg is None:
             return False
-        elif(type(commandArg) is type):
-            if commandArg is str:
+        elif type(command_arg) is type:
+            if command_arg is str:
                 return True
-            elif(commandArg is int and str.isdigit(compareArg)):
+            elif command_arg is int and str.isdigit(compare_arg):
                 return True
             else:
                 return False
-        if type(commandArg) in (list, tuple, set, frozenset):
-            for choice in commandArg:
-                if self.compareAguments(compareArg,choice):
+        if type(command_arg) in (list, tuple, set, frozenset):
+            for choice in command_arg:
+                if self.compare_commands(compare_arg,choice):
                     return True
             return False
-        elif callable(commandArg):
-            if(commandArg(compareArg)):
+        elif callable(command_arg):
+            if command_arg(compare_arg):
                 return True
             else: 
                 return False
